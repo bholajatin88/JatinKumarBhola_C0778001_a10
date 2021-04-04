@@ -6,13 +6,14 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Locale;
 
-public class SalesCommissionCalc {
+public class SalesCommissionCalc implements PayCalc {
     private double sales;
     private int rate;
     private double commission;
     private double advance;
     private double pay;
 
+    //Default Constructor
     public SalesCommissionCalc() {
         this.sales = 0.0;
         this.rate = 0;
@@ -21,10 +22,20 @@ public class SalesCommissionCalc {
         this.pay = 0.0;
     }
 
+    //Parameterized Constructor
     public SalesCommissionCalc(double sales, double advance) {
         this.sales = sales;
         this.advance = advance;
-        getCommissionRateFromSales();
+        setRate();
+        this.commission = 0.0;
+        this.pay = 0.0;
+    }
+
+    //Parameterized Constructor
+    public SalesCommissionCalc(Employee emp) {
+        this.sales = emp.getSales();
+        this.advance = emp.getAdvance();
+        setRate();
         this.commission = 0.0;
         this.pay = 0.0;
     }
@@ -69,33 +80,15 @@ public class SalesCommissionCalc {
         return rate;
     }
 
-    public void calculateSalesCommission() {
-        double comm = getSales() * getRate()/ 100;
-        setCommission(comm);
-        double pay = comm - getAdvance();
-        setPay(pay);
+    //Calculate sales commission and implement definition of calcPay
+    public void calcPay() {
+        setCommission(getSales() * getRate()/ 100);
+        setPay(getCommission() - getAdvance());
     }
 
-    public void displayCommission() {
-        Locale dollar = new Locale("en", "US");
-        DecimalFormat decformat = new DecimalFormat("#.##");
-        NumberFormat df = NumberFormat.getCurrencyInstance(dollar);
-        double decVal = Double.parseDouble(decformat.format(Math.abs(getPay())));
-        String num = df.format(decVal);
-
-        if(getPay() < 0) {
-            JOptionPane.showMessageDialog(null, "The calculated gross pay"
-                    + " is less than advance paid.\n" + "Employee has to reimburse "
-                    + num + " to the company.");
-        }
-        else {
-            JOptionPane.showMessageDialog(null, "The calculate gross pay"
-                    + " is more than the advance paid.\n" + "Company has to pay "
-                    + num + " more to the employee.");
-        }
-    }
-
-    private void getCommissionRateFromSales() {
+    //Polymorphism by doing function overloading by empty setRate method
+    //Get Commission percentage value from user based on sales
+    private void setRate() {
         int rate = 0;
         double sale = getSales();
         if(sale < 10000) {
